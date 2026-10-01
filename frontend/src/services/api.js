@@ -1,9 +1,11 @@
 /**
  * AI Intelligence Studio API Service
  * Base URL dynamically resolved from environment variables or falls back to localhost:8000
+ * Automatically strips trailing slashes to prevent double-slash API routes.
  */
 
-export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 /**
  * Generic helper for JSON API POST requests with error handling
@@ -27,7 +29,7 @@ async function postJSON(endpoint, data) {
     return await response.json();
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error(`Network error: Unable to connect to backend server at ${BASE_URL}. Please ensure FastAPI server is running.`);
+      throw new Error(`Network error: Unable to connect to backend server at ${BASE_URL}. Please ensure FastAPI server is running on Render.`);
     }
     throw error;
   }
@@ -55,7 +57,7 @@ async function postFormData(endpoint, file) {
     return await response.json();
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error(`Network error: Unable to connect to backend server at ${BASE_URL}. Please ensure FastAPI server is running.`);
+      throw new Error(`Network error: Unable to connect to backend server at ${BASE_URL}. Please ensure FastAPI server is running on Render.`);
     }
     throw error;
   }
