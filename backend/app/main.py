@@ -1,6 +1,7 @@
 """
 Main FastAPI Application Entrypoint
 """
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,11 +15,11 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS Middleware Setup - Configured for browser spec compliance (allow_credentials=False with wildcard origins)
+# CORS Middleware Setup - Configured with explicit allowed origins for production & local dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
