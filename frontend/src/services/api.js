@@ -1,18 +1,27 @@
 /**
  * AI Intelligence Studio API Service
- * Base URL dynamically resolved from environment variables or falls back to localhost:8000
- * Automatically strips trailing slashes to prevent double-slash API routes.
+ * Base URL dynamically resolved from VITE_API_URL or defaults to user's Render backend
+ * Automatically cleans double slashes and trailing slashes for zero URL errors.
  */
 
-const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'https://huggingface-ai-studio.onrender.com';
 export const BASE_URL = rawBaseUrl.replace(/\/+$/, '');
+
+/**
+ * Safely constructs API URLs avoiding double slashes (//api)
+ */
+function getApiUrl(endpoint) {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${BASE_URL}${cleanEndpoint}`;
+}
 
 /**
  * Generic helper for JSON API POST requests with error handling
  */
 async function postJSON(endpoint, data) {
+  const url = getApiUrl(endpoint);
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,11 +48,12 @@ async function postJSON(endpoint, data) {
  * Generic helper for Multipart/FormData API POST requests (file uploads)
  */
 async function postFormData(endpoint, file) {
+  const url = getApiUrl(endpoint);
   try {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       method: 'POST',
       body: formData,
     });
