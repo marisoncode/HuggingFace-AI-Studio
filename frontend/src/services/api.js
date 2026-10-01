@@ -1,10 +1,9 @@
 /**
  * AI Intelligence Studio API Service
- * Base URL: http://localhost:8000
+ * Base URL dynamically resolved from environment variables or falls back to localhost:8000
  */
 
-// In frontend/src/services/api.js:
-export const BASE_URL = import.meta.env.VITE_API_URL || 'https://huggingface-ai-studio.onrender.com';
+export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 /**
  * Generic helper for JSON API POST requests with error handling
@@ -28,7 +27,7 @@ async function postJSON(endpoint, data) {
     return await response.json();
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to connect to backend server at http://localhost:8000. Please ensure FastAPI server is running.');
+      throw new Error(`Network error: Unable to connect to backend server at ${BASE_URL}. Please ensure FastAPI server is running.`);
     }
     throw error;
   }
@@ -56,7 +55,7 @@ async function postFormData(endpoint, file) {
     return await response.json();
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to connect to backend server at http://localhost:8000. Please ensure FastAPI server is running.');
+      throw new Error(`Network error: Unable to connect to backend server at ${BASE_URL}. Please ensure FastAPI server is running.`);
     }
     throw error;
   }
@@ -81,14 +80,28 @@ export async function analyzeSentiment(text) {
  * Text Summarization
  * POST /api/nlp/summarize
  */
-export async function summarizeText(text, options = {}) {
+export async function summarizeText(text, maxLenOrOptions = {}, minLen) {
   if (!text || !text.trim()) {
     throw new Error('Text input cannot be empty.');
   }
+
+  let maxLength = 130;
+  let minLength = 30;
+
+  if (typeof maxLenOrOptions === 'object' && maxLenOrOptions !== null) {
+    maxLength = maxLenOrOptions.max_length || maxLenOrOptions.maxLength || 130;
+    minLength = maxLenOrOptions.min_length || maxLenOrOptions.minLength || 30;
+  } else if (typeof maxLenOrOptions === 'number') {
+    maxLength = maxLenOrOptions;
+    if (typeof minLen === 'number') {
+      minLength = minLen;
+    }
+  }
+
   const payload = {
     text: text.trim(),
-    max_length: options.max_length || 60,
-    min_length: options.min_length || 20,
+    max_length: Number(maxLength),
+    min_length: Number(minLength),
   };
   return await postJSON('/api/nlp/summarize', payload);
 }
@@ -103,6 +116,8 @@ export async function recognizeEntities(text) {
   }
   return await postJSON('/api/nlp/ner', { text: text.trim() });
 }
+
+export const extractNER = recognizeEntities;
 
 /**
  * Extractive Question Answering
@@ -176,14 +191,18 @@ export async function transcribeAudio(file) {
   return await postFormData('/api/audio/transcribe', file);
 }
 
+export const transcribeSpeech = transcribeAudio;
+
 export default {
   BASE_URL,
   analyzeSentiment,
   summarizeText,
   recognizeEntities,
+  extractNER,
   answerQuestion,
   translateText,
   classifyImage,
   captionImage,
   transcribeAudio,
+  transcribeSpeech,
 };
