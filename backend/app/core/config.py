@@ -1,5 +1,13 @@
 import os
 
+# Limit CPU threads for PyTorch/BLAS to prevent OOM memory spikes on low-RAM containers (e.g. Render Free 512MB)
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
+
 
 class Settings:
     APP_NAME: str = "AI Intelligence Studio API"
