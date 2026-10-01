@@ -3,7 +3,8 @@
  * Base URL: http://localhost:8000
  */
 
-export const BASE_URL = 'http://localhost:8000';
+// In frontend/src/services/api.js:
+export const BASE_URL = import.meta.env.VITE_API_URL || 'https://huggingface-ai-studio.onrender.com';
 
 /**
  * Generic helper for JSON API POST requests with error handling
