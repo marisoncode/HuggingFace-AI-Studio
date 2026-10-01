@@ -223,6 +223,3 @@ python -m unittest discover -s tests/backend -p "test_*.py"
 - **Responsive Dark Theme UI:** Designed with Tailwind CSS, category color indicators, loading spinners, and reactive error boundaries.
 
 ---
-
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
