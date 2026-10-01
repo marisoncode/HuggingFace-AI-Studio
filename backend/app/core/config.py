@@ -1,36 +1,29 @@
 import os
 
-# Limit CPU threads for PyTorch/BLAS to prevent OOM memory spikes on low-RAM containers (e.g. Render Free 512MB)
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-
-
 
 class Settings:
     APP_NAME: str = "AI Intelligence Studio API"
     API_PREFIX: str = "/api"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    CORS_ORIGINS: list[str] = [
+
+    # Default allowed origins for local development
+    DEFAULT_CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
         "https://hugging-face-ai-studio.vercel.app",
         "https://huggingface-ai-studio.vercel.app",
     ]
 
-    def __init__(self):
+    @property
+    def CORS_ORIGINS(self) -> list[str]:
         env_origins = os.getenv("CORS_ORIGINS")
         if env_origins:
-            parsed = [
-                origin.strip() for origin in env_origins.split(",") if origin.strip()
-            ]
-            for o in parsed:
-                if o not in self.CORS_ORIGINS:
-                    self.CORS_ORIGINS.append(o)
+            return [o.strip() for o in env_origins.split(",") if o.strip()]
+        return self.DEFAULT_CORS_ORIGINS
 
     # Hugging Face Model Registries
     SENTIMENT_MODEL: str = (
