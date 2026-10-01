@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   TrendingUp,
@@ -10,8 +10,8 @@ import {
   MessageSquare,
   Mic,
   ArrowRight,
-  Sparkles,
-  Zap
+  Cpu,
+  Layers
 } from 'lucide-react';
 
 const capabilities = [
@@ -19,162 +19,219 @@ const capabilities = [
     id: 'sentiment',
     name: 'Financial Sentiment Analysis',
     category: 'NLP',
-    description: 'Classify financial text and earnings statements into bullish positive, bearish negative, or neutral sentiment.',
+    description: 'Classify financial text, news, and earnings calls into Bullish (positive), Bearish (negative), or Neutral sentiment.',
     model: 'distilroberta-finetuned-financial-news-sentiment',
     path: '/sentiment',
     icon: TrendingUp,
-    badgeColor: 'border-indigo-500/30 text-indigo-400 bg-indigo-500/10',
-    buttonColor: 'hover:bg-indigo-600 bg-indigo-600/90 text-white'
+    taskTag: 'Text Classification',
+    badgeStyle: 'dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700/60 bg-indigo-50 text-indigo-700 border-indigo-200',
+    buttonStyle: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+    cardBorder: 'dark:hover:border-indigo-500/50 hover:border-indigo-400'
   },
   {
     id: 'summarization',
     name: 'Text Summarization',
     category: 'NLP',
-    description: 'Condense long financial articles, reports, and documentation into concise, high-density bulleted summaries.',
+    description: 'Condense long financial articles, reports, and documentation into concise, structured summaries using DistilBART.',
     model: 'distilbart-cnn-12-6',
     path: '/summarization',
     icon: FileText,
-    badgeColor: 'border-indigo-500/30 text-indigo-400 bg-indigo-500/10',
-    buttonColor: 'hover:bg-indigo-600 bg-indigo-600/90 text-white'
+    taskTag: 'Sequence-to-Sequence',
+    badgeStyle: 'dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700/60 bg-indigo-50 text-indigo-700 border-indigo-200',
+    buttonStyle: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+    cardBorder: 'dark:hover:border-indigo-500/50 hover:border-indigo-400'
   },
   {
     id: 'ner',
     name: 'Named Entity Recognition',
     category: 'NLP',
-    description: 'Extract and label key named entities such as organizations (ORG), locations (LOC), and persons (PER).',
+    description: 'Extract and label key domain entities such as Organizations (ORG), Locations (LOC), and Persons (PER).',
     model: 'bert-base-NER',
     path: '/ner',
     icon: Tag,
-    badgeColor: 'border-indigo-500/30 text-indigo-400 bg-indigo-500/10',
-    buttonColor: 'hover:bg-indigo-600 bg-indigo-600/90 text-white'
+    taskTag: 'Token Classification',
+    badgeStyle: 'dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700/60 bg-indigo-50 text-indigo-700 border-indigo-200',
+    buttonStyle: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+    cardBorder: 'dark:hover:border-indigo-500/50 hover:border-indigo-400'
   },
   {
     id: 'qa',
     name: 'Extractive Question Answering',
     category: 'NLP',
-    description: 'Provide context passages and ask specific questions to extract exact start-to-end answers.',
+    description: 'Supply context passages and query specific details to extract exact start-and-end position answers.',
     model: 'roberta-base-squad2',
     path: '/qa',
     icon: HelpCircle,
-    badgeColor: 'border-indigo-500/30 text-indigo-400 bg-indigo-500/10',
-    buttonColor: 'hover:bg-indigo-600 bg-indigo-600/90 text-white'
+    taskTag: 'Question Answering',
+    badgeStyle: 'dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700/60 bg-indigo-50 text-indigo-700 border-indigo-200',
+    buttonStyle: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+    cardBorder: 'dark:hover:border-indigo-500/50 hover:border-indigo-400'
   },
   {
     id: 'translation',
     name: 'English → French Translation',
     category: 'NLP',
-    description: 'Translate English language text into fluent French using neural machine translation models.',
+    description: 'Neural machine translation converting English source text into fluent, grammatically sound French.',
     model: 'opus-mt-en-fr',
     path: '/translation',
     icon: Languages,
-    badgeColor: 'border-indigo-500/30 text-indigo-400 bg-indigo-500/10',
-    buttonColor: 'hover:bg-indigo-600 bg-indigo-600/90 text-white'
+    taskTag: 'Translation',
+    badgeStyle: 'dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700/60 bg-indigo-50 text-indigo-700 border-indigo-200',
+    buttonStyle: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+    cardBorder: 'dark:hover:border-indigo-500/50 hover:border-indigo-400'
   },
   {
     id: 'image-classification',
     name: 'Image Classification',
-    category: 'Vision',
-    description: 'Predict visual category labels and top confidence scores for uploaded photographs or graphic assets.',
+    category: 'VISION',
+    description: 'Analyze photographic or graphic visual assets to predict high-confidence object classification labels.',
     model: 'resnet-50',
     path: '/image-classification',
     icon: ImageIcon,
-    badgeColor: 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10',
-    buttonColor: 'hover:bg-emerald-600 bg-emerald-600/90 text-white'
+    taskTag: 'Computer Vision',
+    badgeStyle: 'dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700/60 bg-emerald-50 text-emerald-700 border-emerald-200',
+    buttonStyle: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+    cardBorder: 'dark:hover:border-emerald-500/50 hover:border-emerald-400'
   },
   {
     id: 'image-captioning',
     name: 'Image Captioning',
-    category: 'Vision',
-    description: 'Generate detailed natural language descriptions and captions for visual content using vision transformers.',
+    category: 'VISION',
+    description: 'Generate detailed descriptive captions for complex visual scenes using cross-modal vision transformers.',
     model: 'blip-image-captioning-base',
     path: '/image-captioning',
     icon: MessageSquare,
-    badgeColor: 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10',
-    buttonColor: 'hover:bg-emerald-600 bg-emerald-600/90 text-white'
+    taskTag: 'Vision-to-Text',
+    badgeStyle: 'dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700/60 bg-emerald-50 text-emerald-700 border-emerald-200',
+    buttonStyle: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+    cardBorder: 'dark:hover:border-emerald-500/50 hover:border-emerald-400'
   },
   {
     id: 'speech-to-text',
     name: 'Speech-to-Text',
-    category: 'Audio',
+    category: 'AUDIO',
     description: 'Transcribe spoken audio files (WAV, MP3, FLAC) into accurate written text transcripts using Whisper.',
     model: 'whisper-tiny',
     path: '/speech-to-text',
     icon: Mic,
-    badgeColor: 'border-amber-500/30 text-amber-400 bg-amber-500/10',
-    buttonColor: 'hover:bg-amber-600 bg-amber-600/90 text-white'
+    taskTag: 'Audio Recognition',
+    badgeStyle: 'dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700/60 bg-amber-50 text-amber-700 border-amber-200',
+    buttonStyle: 'bg-amber-600 hover:bg-amber-500 text-white',
+    cardBorder: 'dark:hover:border-amber-500/50 hover:border-amber-400'
   }
 ];
 
+const categories = ['ALL', 'NLP', 'VISION', 'AUDIO'];
+
 export default function Dashboard() {
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
+
+  const filteredCapabilities = selectedCategory === 'ALL'
+    ? capabilities
+    : capabilities.filter((cap) => cap.category === selectedCategory);
+
   return (
-    <div className="space-y-8">
-      {/* Dashboard Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 p-6 md:p-8 border border-indigo-500/20 shadow-xl">
-        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-          <Sparkles className="w-64 h-64 text-indigo-400" />
-        </div>
-        <div className="max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
-            <Zap className="w-3.5 h-3.5" /> Multi-Modal AI Platform
+    <div className="space-y-8 font-sans">
+      {/* Studio Banner */}
+      <div className="rounded-2xl border dark:border-slate-800 border-slate-200 dark:bg-slate-900 bg-white p-6 md:p-8 shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full dark:bg-slate-800 bg-slate-100 dark:border-slate-700 border-slate-300 dark:text-slate-300 text-slate-700 text-xs font-medium">
+              <Cpu className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Multi-Modal AI Platform</span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold dark:text-white text-slate-900 tracking-tight font-sans">
+              AI Intelligence Studio
+            </h1>
+            <p className="dark:text-slate-300 text-slate-600 text-sm md:text-base leading-relaxed font-sans">
+              Unified workspace for interactive NLP, Computer Vision, and Audio transformers powered by production-grade Hugging Face models.
+            </p>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-            AI Intelligence Studio
-          </h1>
-          <p className="text-slate-300 text-base md:text-lg leading-relaxed">
-            Unified workspace for interactive NLP, Computer Vision, and Audio analysis powered by production-grade Hugging Face Transformer models.
-          </p>
+
+          <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l dark:border-slate-800 border-slate-200 pt-4 md:pt-0 md:pl-8">
+            <div className="space-y-1">
+              <div className="text-2xl font-bold dark:text-white text-slate-900 tracking-tight font-sans">8</div>
+              <div className="text-xs dark:text-slate-400 text-slate-500 font-mono uppercase tracking-wider">Active Models</div>
+            </div>
+            <div className="h-8 w-px dark:bg-slate-800 bg-slate-200 mx-2" />
+            <div className="space-y-1">
+              <div className="text-2xl font-bold dark:text-white text-slate-900 tracking-tight font-sans">3</div>
+              <div className="text-xs dark:text-slate-400 text-slate-500 font-mono uppercase tracking-wider">Modalities</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Capabilities Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-            <span>Capabilities Hub</span>
-            <span className="text-xs font-normal text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700">
-              8 Available Models
-            </span>
-          </h2>
+      {/* Capabilities Hub Section */}
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b dark:border-slate-800 border-slate-200 pb-4">
+          <div className="flex items-center gap-2">
+            <Layers className="w-5 h-5 text-indigo-500" />
+            <h2 className="text-lg font-bold dark:text-white text-slate-900 tracking-tight font-sans">Model Capabilities</h2>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="flex items-center gap-1.5 dark:bg-slate-900 bg-white p-1.5 rounded-xl border dark:border-slate-800 border-slate-200 shadow-sm">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors font-sans ${
+                  selectedCategory === cat
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'dark:text-slate-400 text-slate-600 dark:hover:text-slate-200 hover:text-slate-900 dark:hover:bg-slate-800 hover:bg-slate-100'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* 8 Cards Grid */}
+        {/* Capabilities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {capabilities.map((cap) => {
+          {filteredCapabilities.map((cap) => {
             const Icon = cap.icon;
             return (
               <div
                 key={cap.id}
-                className="group flex flex-col justify-between rounded-xl bg-slate-900/70 border border-slate-800 p-5 hover:border-indigo-500/40 hover:bg-slate-900 transition-all shadow-sm hover:shadow-indigo-500/5"
+                className={`group flex flex-col justify-between rounded-2xl dark:bg-slate-900 bg-white border dark:border-slate-800 border-slate-200 p-5 transition-all shadow-md ${cap.cardBorder}`}
               >
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 group-hover:text-indigo-400 transition-colors">
+                    <div className="p-2.5 rounded-xl dark:bg-slate-800 bg-slate-100 border dark:border-slate-700 border-slate-200 dark:text-slate-200 text-slate-700">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${cap.badgeColor}`}>
+                    <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded border ${cap.badgeStyle}`}>
                       {cap.category}
                     </span>
                   </div>
 
-                  <h3 className="text-base font-semibold text-white tracking-tight group-hover:text-indigo-300 transition-colors">
-                    {cap.name}
-                  </h3>
-
-                  <p className="text-xs text-slate-400 leading-relaxed line-clamp-3">
-                    {cap.description}
-                  </p>
+                  <div className="space-y-1.5">
+                    <h3 className="text-base font-bold dark:text-white text-slate-900 tracking-tight font-sans">
+                      {cap.name}
+                    </h3>
+                    <p className="text-xs dark:text-slate-300 text-slate-600 leading-relaxed line-clamp-3 font-sans">
+                      {cap.description}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="pt-5 mt-4 border-t border-slate-800/80 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-slate-400 truncate max-w-[130px]" title={cap.model}>
-                    {cap.model}
-                  </span>
+                <div className="pt-4 mt-5 border-t dark:border-slate-800 border-slate-200 flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase font-mono dark:text-slate-400 text-slate-500 tracking-wider">
+                      {cap.taskTag}
+                    </span>
+                    <span className="text-[11px] font-mono dark:text-slate-300 text-slate-700 truncate max-w-[120px]" title={cap.model}>
+                      {cap.model}
+                    </span>
+                  </div>
 
                   <Link
                     to={cap.path}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${cap.buttonColor}`}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${cap.buttonStyle}`}
                   >
-                    <span>Try Now</span>
+                    <span>Launch</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
